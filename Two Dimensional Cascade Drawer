@@ -1,0 +1,25 @@
+library(mizer)
+params_knife <- set_community_model(z0 = 0.1, recruitment = 4e7, alpha = 0.2, f0 = 0.7, knife_edge_size = 1000, sigma = 2, h=20, beta = 100)
+#sets sigma which is the peramiter describing the predation size spectrum to 1.
+
+#prosimFishing1<- project(params_knife, effort = 1, t_max = 5, initial_n = simFishing@n[33,,,drop=FALSE], initial_n_pp = simFishing@n_pp[33,], dt=0.01)
+
+simNoFishing <- project(params_knife, effort = 0, t_max = 1000, dt=0.01)
+simFishing<- project(params_knife, effort = 1, t_max = 1000, dt=0.01)
+
+plot(simFishing)
+#calculates the percentage difference the simulation with fishing and the one without.
+relative_abundance500 <- (simFishing@n[1001,,]) / simNoFishing@n[1001,,]
+
+library(ggplot2)
+library(scales)
+rp = ggplot() + 
+    geom_line(aes(x = simNoFishing@params@w, y = relative_abundance500), color = "red", linetype = 1) +
+    xlab('Size (g)') +
+    ylab('Relative abundance') + 
+    scale_x_log10(breaks = trans_breaks("log10", function(x) 10^x),
+                  labels = trans_format("log10", math_format(10^.x))) +
+    scale_colour_manual(values =c('red')) +
+    guides(color=guide_legend("Time"))
+
+print(rp)
